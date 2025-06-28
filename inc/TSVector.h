@@ -11,8 +11,10 @@ namespace ts {
 template <typename T>
 class vector {
 public:
-    using iterator = typename std::vector<T>::iterator;
-    using const_iterator = typename std::vector<T>::const_iterator;
+    using iterator               = typename std::vector<T>::iterator;
+    using const_iterator         = typename std::vector<T>::const_iterator;
+    using reverse_iterator       = typename std::vector<T>::reverse_iterator;
+    using const_reverse_iterator = typename std::vector<T>::const_reverse_iterator;
 
     vector() = default;
 
@@ -137,9 +139,9 @@ public:
     }
 
     template <class... Args>
-    void emplace_back(Args&&... args) {
+    T& emplace_back(Args&&... args) {
         std::lock_guard<std::mutex> lock(mutex_);
-        data_.emplace_back(std::forward<Args>(args)...);
+        return data_.emplace_back(std::forward<Args>(args)...);
     }
 
     void pop_back() {
@@ -167,6 +169,143 @@ public:
         std::lock_guard<std::mutex> lock(mutex_);
         data_.swap(data_, other);
     }
+
+    bool empty() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.empty();
+    }
+
+    size_t size() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.size();
+    }
+
+    size_t max_size() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.max_size();
+    }    
+
+    void reserve(size_t new_cap) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        data_.new_cap();
+    }
+
+    void shrink_to_fit() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        data_.shrink_to_fit();
+    }
+
+    iterator begin() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.begin();
+    }
+
+    const_iterator begin() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.begin();
+    }
+
+    const_iterator cbegin() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.cbegin();
+    }
+
+    iterator end() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.end();
+    }
+
+    const_iterator end() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.end();
+    }
+
+    const_iterator cend() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.cend();
+    }
+
+    reverse_iterator rbegin() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.rbegin();
+    }
+
+    const_reverse_iterator rbegin() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.rbegin();
+    }
+
+    const_reverse_iterator crbegin() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.crbegin();
+    }
+
+    reverse_iterator rend() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.rend();
+    }
+
+    const_reverse_iterator rend() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.rend();
+    }
+
+    const_reverse_iterator crend() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.crend();
+    }
+
+    T& at(size_t pos) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.at(pos);
+    }
+
+    const T&(size_t pos) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.at(pos);
+    }
+ 
+    T& operator[](size_t pos) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_[pos];
+    }
+
+    const T& operator[](size_t pos) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_[pos];
+    }
+
+    T& front() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.front();
+    }
+
+    const T& front() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.front();
+    }
+
+    T& back() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.back();
+    }
+
+    const T& back() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.back();
+    }
+
+    T* data() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.data();
+    }
+
+    const T* data() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.data();
+    }
+
+    
 
 private:
     mutable std::mutex mutex_;
