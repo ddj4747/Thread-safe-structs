@@ -5,7 +5,6 @@
 #include <mutex>
 #include <initializer_list>
 #include <algorithm>
-#include <functional>
 
 namespace ts {
 template <typename T> class vector {
@@ -111,7 +110,7 @@ public:
         data_.resize(count, value);
     }
 
-    void swap(vector& other) {
+    void swap(vector& other) noexcept {
         if (this == &other) return;
         std::scoped_lock lock(mutex_, other.mutex_);
         data_.swap(other.data_);

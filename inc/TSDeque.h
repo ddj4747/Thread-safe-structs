@@ -5,7 +5,6 @@
 #include <mutex>
 #include <initializer_list>
 #include <algorithm>
-#include <functional>
 
 namespace ts {
 
