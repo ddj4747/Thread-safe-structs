@@ -68,14 +68,14 @@ public:
         std::lock_guard<std::mutex> lock(mutex_);
         T value = std::move(data_.front());
         data_.pop_front();
-        return value;
+        return std::move(value);
     }
 
     T pop_back() {
         std::lock_guard<std::mutex> lock(mutex_);
         T value = std::move(data_.back());
         data_.pop_back();
-        return value;
+        return std::move(value);
     }
 
     void push_front(const T& value) {
