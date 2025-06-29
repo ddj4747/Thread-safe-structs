@@ -8,9 +8,7 @@
 #include <functional>
 
 namespace ts {
-
-template <typename T>
-class vector {
+template <typename T> class vector {
 public:
     vector() = default;
 
@@ -124,26 +122,28 @@ public:
         data_.swap(other);
     }
 
-    bool empty() {
+    bool empty() const {
         std::lock_guard lock(mutex_);
         return data_.empty();
     }
 
-    size_t size() {
+    size_t size() const {
         std::lock_guard lock(mutex_);
         return data_.size();
+    }
+
+    template <typename Pred>
+    void erase_if(Pred pred) {
+        std::lock_guard lock(mutex_);
+        data_.erase(
+            std::remove_if(data_.begin(), data_.end(), pred),
+            data_.end()
+        );
     }
 
     std::vector<T> snapshot() const {
         std::lock_guard lock(mutex_);
         return data_;
-    }
-
-    void for_each(const std::function<void(const T&)>& func) const {
-        std::lock_guard lock(mutex_);
-        for (const auto& item : data_) {
-            func(item);
-        }
     }
 
 private:
