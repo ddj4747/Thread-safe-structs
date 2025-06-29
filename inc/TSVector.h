@@ -140,6 +140,17 @@ public:
         );
     }
 
+    template <typename Pred>
+    std::vector<T> erase_if_and_snapshot(Pred pred) {
+        std::lock_guard lock(mutex_);
+        data_.erase(
+            std::remove_if(data_.begin(), data_.end(), pred),
+            data_.end()
+        );
+
+        return data_;
+    }
+
     std::vector<T> snapshot() const {
         std::lock_guard lock(mutex_);
         return data_;
