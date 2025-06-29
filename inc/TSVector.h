@@ -100,14 +100,19 @@ public:
         data_.pop_back();
     }
 
-    void resize(size_t count) {
+    void reserve(size_t size) {
         std::lock_guard lock(mutex_);
-        data_.resize(count);
+        data_.reserve(size);
     }
 
-    void resize(size_t count, const T& value) {
+    void resize(size_t size) {
         std::lock_guard lock(mutex_);
-        data_.resize(count, value);
+        data_.resize(size);
+    }
+
+    void resize(size_t size, const T& value) {
+        std::lock_guard lock(mutex_);
+        data_.resize(size, value);
     }
 
     void swap(vector& other) noexcept {
