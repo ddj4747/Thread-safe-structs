@@ -141,7 +141,7 @@ public:
     }
 
     template <typename Pred>
-    std::vector<T> erase_if_and_snapshot(Pred pred) {
+    std::vector<T> erase_if_then_snapshot(Pred pred) {
         std::lock_guard lock(mutex_);
         data_.erase(
             std::remove_if(data_.begin(), data_.end(), pred),
@@ -149,6 +149,33 @@ public:
         );
 
         return data_;
+    }
+
+    /**
+     * @brief Executes a user-provided function on the internal vector under a mutex lock.
+     *
+     * Acquires an exclusive lock for the duration of the callback.
+     * All other operations (from other threads) will block until the callback completes.
+     *
+     * ⚠️ Do not store references or iterators after this call — they might become invalid when the lock is released.
+     */
+    template <typename F>
+    void process(F&& callback) {
+        std::lock_guard lock(mutex_);
+        std::forward<F>(callback)(data_);
+    }
+
+    /**
+     * @brief Executes a user-provided function on the internal vector under a mutex lock.
+     *
+     * Acquires an exclusive lock for the duration of the callback.
+     * All other operations (from other threads) will block until the callback completes.
+     *
+     * ⚠️ Do not store references or iterators after this call — they might become invalid when the lock is released.
+    */
+    void process(const std::function<void(std::vector<T>&)>& callback) {
+        std::lock_guard lock(mutex_);
+        callback(data_);
     }
 
     std::vector<T> snapshot() const {
