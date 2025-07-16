@@ -5,8 +5,13 @@
 #include <mutex>
 #include <initializer_list>
 #include <algorithm>
+#include <optional>
 
 namespace ts {
+
+#ifndef NO_DISCARD
+#define NO_DISCARD [[nodiscard]]
+#endif
 
 template <typename T>
 class deque {
@@ -32,7 +37,7 @@ public:
         data_ = init;
     }
 
-    deque& operator=(const deque& other) {
+    NO_DISCARD deque& operator=(const deque& other) {
         if (this != &other) {
             std::lock_guard<std::mutex> lock1(mutex_, std::defer_lock);
             std::lock_guard<std::mutex> lock2(other.mutex_, std::defer_lock);
@@ -42,7 +47,7 @@ public:
         return *this;
     }
 
-    deque& operator=(deque&& other) noexcept {
+    NO_DISCARD deque& operator=(deque&& other) noexcept {
         if (this != &other) {
             std::lock_guard<std::mutex> lock1(mutex_, std::defer_lock);
             std::lock_guard<std::mutex> lock2(other.mutex_, std::defer_lock);
@@ -54,28 +59,52 @@ public:
 
     ~deque() = default;
 
-    bool empty() const {
+    NO_DISCARD bool empty() const {
         std::lock_guard<std::mutex> lock(mutex_);
         return data_.empty();
     }
 
-    size_t size() const {
+    NO_DISCARD size_t size() const {
         std::lock_guard<std::mutex> lock(mutex_);
         return data_.size();
     }
 
-    T pop_front() {
+    NO_DISCARD std::optional<T> pop_front_nullable() {
+        std::lock_guard<std::mutex> lock(mutex_);
+
+        if (data_.empty()) {
+            return std::nullopt;
+        }
+
+        T value = std::move(data_.front());
+        data_.pop_front();
+        return value;
+    }
+
+    NO_DISCARD std::optional<T> pop_back_nullable() {
+        std::lock_guard<std::mutex> lock(mutex_);
+
+        if (data_.empty()) {
+            return std::nullopt;
+        }
+
+        T value = std::move(data_.back());
+        data_.pop_back();
+        return value;
+    }
+
+    NO_DISCARD T pop_front() {
         std::lock_guard<std::mutex> lock(mutex_);
         T value = std::move(data_.front());
         data_.pop_front();
-        return std::move(value);
+        return value;
     }
 
-    T pop_back() {
+    NO_DISCARD T pop_back() {
         std::lock_guard<std::mutex> lock(mutex_);
         T value = std::move(data_.back());
         data_.pop_back();
-        return std::move(value);
+        return value;
     }
 
     void push_front(const T& value) {
